@@ -3,6 +3,10 @@
 require "worktreegroup"
 
 RSpec.configure do |config|
+  # E2E test configuration
+  config.define_derived_metadata(file_path: %r{/spec/e2e/}) do |metadata|
+    metadata[:type] = :e2e
+  end
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end

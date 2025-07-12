@@ -9,10 +9,14 @@ This is a Ruby CLI gem called "worktreegroup" that executes `git worktree add` o
 ## Development Commands
 
 ### Testing and Quality
-- `make test` - Run RSpec test suite
+- `make test` - Run unit tests only (excludes e2e tests)
+- `make test-unit` - Run unit tests only (same as `make test`)
+- `make test-e2e` - Run end-to-end tests only
+- `make test-all` - Run all tests (unit + e2e)
 - `make lint` - Run Rubocop (has fallback for gem compatibility issues)
 - `make format` - Auto-format code with Rubocop
-- `make check` - Run both tests and linting
+- `make check` - Run unit tests and linting
+- `make check-all` - Run all tests and linting
 - `bundle exec rspec spec/path/to/specific_spec.rb` - Run single test file
 - `bundle exec rspec spec/path/to/specific_spec.rb:42` - Run specific test by line number
 
@@ -54,15 +58,22 @@ lib/
 ## Testing Strategy
 
 ### Test Structure
-- RSpec framework with comprehensive CLI testing
+- **Unit Tests** (`spec/worktreegroup/`): Fast isolated tests with mocked dependencies
+- **E2E Tests** (`spec/e2e/`): Full integration tests with real git repositories and CLI execution
 - Test files mirror `lib/` structure in `spec/`
-- Uses method mocking for isolation (e.g., `allow(cli).to receive(:find_git_repositories)`)
-- Tests cover error conditions, success scenarios, and mixed results
+- RSpec framework with comprehensive CLI testing
 
-### Key Test Patterns
-- CLI instance testing with mocked dependencies
+### Unit Test Patterns
+- CLI instance testing with mocked dependencies (e.g., `allow(cli).to receive(:find_git_repositories)`)
 - Output capture using `expect { }.to output().to_stdout`
 - Error handling verification with exit code expectations
+
+### E2E Test Framework
+- Creates temporary git repositories using `Dir.mktmpdir`
+- Executes actual CLI binary via `system()` calls
+- Verifies real file system changes and git worktree operations
+- Tests real multi-repository scenarios with proper cleanup
+- Uses `around` blocks for proper test isolation
 
 ## Environment Notes
 - Ruby >= 2.6.0 required
