@@ -8,40 +8,63 @@ module Worktreegroup
       true
     end
 
+    default_task :hello
+
+    desc "hello", "Show greeting message"
+    def hello
+      puts "hello"
+    end
+
     desc "version", "Show version"
     def version
       puts VERSION
     end
 
-    desc "list", "List Git worktrees"
-    def list
-      puts "Listing Git worktrees..."
-      # TODO: Implement worktree listing functionality
-    end
+    desc "add *ARGS", "Add worktree to all git repositories in current directory"
+    def add(*args)
+      return handle_error("Error: Please provide arguments for git worktree add") if args.empty?
 
-    desc "group COMMAND ...ARGS", "Manage worktree groups"
-    subcommand "group", Group
+      git_repos = find_git_repositories
+      return handle_error("No git repositories found in current directory") if git_repos.empty?
+
+      puts "Found #{git_repos.size} git repository(ies):"
+      git_repos.each { |repo| puts "  - #{repo}" }
+      puts
+
+      success_count = 0
+      git_repos.each do |repo|
+        puts "Processing #{repo}..."
+        if execute_worktree_add(repo, args)
+          success_count += 1
+          puts "  ✓ Success"
+        else
+          puts "  ✗ Failed"
+        end
+      end
+
+      puts "\nCompleted: #{success_count}/#{git_repos.size} repositories processed successfully"
+    end
 
     private
 
-    class Group < Thor
-      desc "create NAME", "Create a new worktree group"
-      def create(name)
-        puts "Creating worktree group: #{name}"
-        # TODO: Implement group creation functionality
-      end
+    def handle_error(message)
+      puts message
+      exit 1
+    end
 
-      desc "list", "List all worktree groups"
-      def list
-        puts "Listing worktree groups..."
-        # TODO: Implement group listing functionality
-      end
+    def find_git_repositories
+      Dir.glob("*/").select do |dir|
+        File.directory?(File.join(dir, ".git"))
+      end.map { |dir| dir.chomp("/") }
+    end
 
-      desc "add GROUP WORKTREE", "Add worktree to group"
-      def add(group, worktree)
-        puts "Adding worktree '#{worktree}' to group '#{group}'"
-        # TODO: Implement adding worktree to group
+    def execute_worktree_add(repo_dir, args)
+      Dir.chdir(repo_dir) do
+        command = ["git", "worktree", "add"] + args
+        system(*command, out: File::NULL, err: File::NULL)
       end
+    rescue => e
+      false
     end
   end
 end
