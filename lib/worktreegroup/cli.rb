@@ -4,6 +4,10 @@ require "thor"
 
 module Worktreegroup
   class CLI < Thor
+    def self.exit_on_failure?
+      true
+    end
+
     default_task :hello
 
     desc "hello", "Show greeting message"
@@ -15,5 +19,13 @@ module Worktreegroup
     def version
       puts VERSION
     end
+
+    desc "list", "List Git worktrees"
+    def list
+      puts "Listing Git worktrees..."
+      # TODO: Implement worktree listing functionality
+    end
+
+# TODO: Add group subcommands later
   end
 end
