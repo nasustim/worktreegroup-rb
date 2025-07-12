@@ -20,33 +20,58 @@ Or install it yourself as:
 
 ## Usage
 
+### Prerequisites
+
+This tool is designed to be run from a directory that contains multiple Git repositories as subdirectories. For example:
+
+```
+current-directory/
+├── repo1/
+│   └── .git/
+├── repo2/  
+│   └── .git/
+└── repo3/
+    └── .git/
+```
+
 ### Basic Commands
+
+Show greeting message (default command):
+```bash
+worktreegroup
+# or explicitly
+worktreegroup hello
+```
 
 Show version:
 ```bash
 worktreegroup version
 ```
 
-List Git worktrees:
+### Worktree Management
+
+Add worktrees to all Git repositories in the current directory:
 ```bash
-worktreegroup list
+worktreegroup add <path> [<commit-ish>]
 ```
 
-### Group Management
+This command accepts the same arguments as `git worktree add` and executes the operation across all Git repositories found in the current directory.
 
-Create a new worktree group:
+#### Examples
+
+Create a new worktree for feature branch in all repositories:
 ```bash
-worktreegroup group create my-group
+worktreegroup add -b feature/new-feature ../feature-branch
 ```
 
-List all worktree groups:
+Add worktree from existing branch:
 ```bash
-worktreegroup group list
+worktreegroup add ../hotfix develop
 ```
 
-Add a worktree to a group:
+Add worktree with detached HEAD:
 ```bash
-worktreegroup group add my-group /path/to/worktree
+worktreegroup add --detach ../temp-work v1.0.0
 ```
 
 ## Development
