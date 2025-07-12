@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  pull_request:
+    branches: 
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.4.4
+        bundler-cache: true
+
+    - name: Run tests
+      run: make test-all
+
+    - name: Run lint
+      run: make lint
+
+    - name: Build gem
+      run: gem build worktreegroup.gemspec
+
+    - name: Install gem locally
+      run: gem install *.gem
+
+    - name: Test CLI installation
+      run: |
+        worktreegroup version
+        worktreegroup --help

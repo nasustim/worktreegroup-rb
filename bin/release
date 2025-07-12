@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Get current version
+current_version=$(ruby -r './lib/worktreegroup/version' -e 'puts Worktreegroup::VERSION')
+echo "Current version: $current_version"
+
+# Get new version from user
+echo "Enter new version (e.g., 0.2.0):"
+read -r new_version
+
+if [[ -z "$new_version" ]]; then
+    echo "Error: Version cannot be empty"
+    exit 1
+fi
+
+# Validate version format
+if [[ ! "$new_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: Version must be in format X.Y.Z (e.g., 0.2.0)"
+    exit 1
+fi
+
+echo "Updating version to $new_version..."
+
+# Update version file
+sed -i.bak "s/VERSION = \"$current_version\"/VERSION = \"$new_version\"/" lib/worktreegroup/version.rb
+rm lib/worktreegroup/version.rb.bak
+
+# Run tests
+echo "Running tests..."
+make test-all
+
+# Build gem
+echo "Building gem..."
+gem build worktreegroup.gemspec
+
+# Commit changes
+git add lib/worktreegroup/version.rb
+git commit -m "Bump version to $new_version"
+
+# Create and push tag
+git tag "v$new_version"
+git push origin main
+git push origin "v$new_version"
+
+echo "Release v$new_version has been created!"
+echo "GitHub Actions will automatically:"
+echo "- Create a GitHub release"
+echo "- Publish to RubyGems (if RUBYGEMS_API_KEY is configured)"
+echo "- Publish to GitHub Packages"
