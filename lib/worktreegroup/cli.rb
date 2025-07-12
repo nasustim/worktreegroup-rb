@@ -26,6 +26,6 @@ module Worktreegroup
       # TODO: Implement worktree listing functionality
     end
 
-# TODO: Add group subcommands later
+    # TODO: Add group subcommands later
   end
 end
