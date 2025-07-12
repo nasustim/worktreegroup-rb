@@ -24,5 +24,5 @@ jobs:
     - name: Run tests
       run: make test
 
-    - name: Run Rubocop
-      run: bundle exec rubocop
+    - name: Run lint
+      run: make lint
